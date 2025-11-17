@@ -24,20 +24,20 @@ const nextConfig: NextConfig = {
 			{
 				source: '/',
 				destination: '/filesGround',
-				permanent: true, // 或 false（临时重定向）
-			},
+				permanent: true // 或 false（临时重定向）
+			}
 		];
 	},
 	// 资源别名设置，需要配合tsconfig.json修改
 	turbopack: {
 		resolveAlias: {
-			'@': path.resolve(process.cwd(), 'src'),
-		},
+			'@': path.resolve(process.cwd(), 'src')
+		}
 	},
 	// 跨域访问设置
 	allowedDevOrigins: [...ip],
-	// 严格模式，useEffect 等会执行两次
-	// reactStrictMode: false,
+	// reactStrictMode: false, // 严格模式下 useEffect 等会执行两次
+	serverExternalPackages: ['pdfkit'] // Node.js 等原生模块保持文件路径结构
 };
 
 export default nextConfig;
