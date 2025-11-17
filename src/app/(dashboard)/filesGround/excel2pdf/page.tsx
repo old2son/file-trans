@@ -1,3 +1,5 @@
+import FileBtn from './FileBtn';
+
 export default function Page() {
-	return <div></div>;
+	return <FileBtn />;
 }

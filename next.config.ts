@@ -36,6 +36,8 @@ const nextConfig: NextConfig = {
 	},
 	// 跨域访问设置
 	allowedDevOrigins: [...ip],
+	// 严格模式，useEffect 等会执行两次
+	// reactStrictMode: false,
 };
 
 export default nextConfig;
