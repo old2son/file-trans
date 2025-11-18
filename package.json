@@ -9,8 +9,6 @@
 		"lint": "eslint"
 	},
 	"dependencies": {
-		"jspdf": "^3.0.3",
-		"jspdf-autotable": "^5.0.2",
 		"next": "16.0.0",
 		"pdfkit": "^0.17.2",
 		"react": "19.2.0",

@@ -15,7 +15,6 @@ export default function Page() {
 	async function convert() {
 		if (!file) return alert('请先选择文件');
 
-		// 你也可以上传到后端 API
 		const form = new FormData();
 		form.append('file', file);
 
@@ -23,21 +22,15 @@ export default function Page() {
 			method: 'POST',
 			body: form,
         });
-        
-       
 
 		const blob = await res.blob();
 		const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         
-        console.log(blob)
-        // return;
-		console.log(111);
-		console.log(url);
-		// return;
+        console.log('文件', blob)
+       
 		a.href = url;
-		// a.download = file.name.replace(/\.(xls|xlsx)$/, '.pdf');
-		a.download = 'converted.pdf'; // 下载文件名
+		a.download = file.name.replace(/\.(xls|xlsx)$/, '.pdf');
 		a.click();
 
 		URL.revokeObjectURL(url);
@@ -60,7 +53,7 @@ export default function Page() {
 			</div>
 
 			<button type="button" onClick={convert} className="ml-3 px-4 py-2 bg-green-600 text-white rounded">
-				转
+				转换 PDF
 			</button>
 		</form>
 	);

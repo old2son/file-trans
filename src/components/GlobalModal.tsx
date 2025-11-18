@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 let externalOpen: (content: React.ReactNode) => void;
@@ -9,17 +9,25 @@ let externalClose: () => void;
 export default function GlobalModal() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [content, setContent] = useState<React.ReactNode>(null);
+	const [mounted, setMounted] = useState(false);
+	const timeId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
 		externalOpen = (c: React.ReactNode) => {
 			setContent(c);
+			setMounted(true);
 			setIsOpen(true);
+			if (timeId.current) clearTimeout(timeId.current);
+			timeId.current = setTimeout(() => setIsOpen(true), 20);
 		};
 
-		externalClose = () => setIsOpen(false);
+		externalClose = () => {
+			setIsOpen(false);
+			if (timeId.current) clearTimeout(timeId.current);
+		};
 	}, []);
 
-	if (!content) return null;
+	if (!mounted) return null;
 
 	const modal = (
 		<div
@@ -28,7 +36,7 @@ export default function GlobalModal() {
             `}
 		>
 			{/* 背景 */}
-			<div className="absolute inset-0 bg-black/50" onClick={() => setIsOpen(false)} />
+			<div className="absolute inset-0 bg-black/50 " onClick={() => setIsOpen(false)} />
 
 			{/* 内容容器 */}
 			<div
