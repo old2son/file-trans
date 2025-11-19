@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { cwd } from 'process';
+import { Readable } from 'stream';
 
 type CellValue = string | number | boolean | Date | null | undefined;
 type ExcelRow = CellValue[];
@@ -14,7 +16,7 @@ export async function POST(req: Request) {
 	try {
 		const formData = await req.formData();
 		const file = formData.get('file') as File;
-		const fileName = encodeURIComponent(file?.name.split('.')[0]) || 'converted.pdf';
+		const fileName = encodeURIComponent(file?.name.split('.')[0]) || 'converted';
 
 		if (!file) {
 			return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
@@ -28,77 +30,75 @@ export async function POST(req: Request) {
 		const workbook = XLSX.read(buffer, { type: 'buffer' });
 		const sheetName = workbook.SheetNames[0];
 		const worksheet = workbook.Sheets[sheetName];
-
-		// 转换为 JSON 格式
 		const jsonData: ExcelRow[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-		// ⬇️ 生成 PDF
-		const doc = new PDFDocument();
-
-		const chunks: Buffer[] = [];
-
-		const pdfPromise = new Promise<Buffer>((resolve, reject) => {
-			doc.on('data', (chunk) => chunks.push(chunk));
-			doc.on('end', () => resolve(Buffer.concat(chunks)));
-			doc.on('error', reject);
+		// 临时路径
+		const temp = path.join(os.tmpdir(), `${Date.now()}.pdf`);
+		// 创建 PDF 文档
+		const doc = new PDFDocument({
+			autoFirstPage: true,
 		});
+		const writeStream = fs.createWriteStream(temp);
+		doc.pipe(writeStream);
 
 		// 注册中文字体
 		try {
-			// 在 Windows 上
-			// const fontPath = path.join(process.cwd(), 'public', 'fonts', 'DejaVuSans.ttf');
-			// const fontPath = path.join(process.cwd(), 'public', 'fonts', 'MicrosoftYaHei.ttf');
 			const fontPath = path.join(cwd(), 'public', 'fonts', 'NotoSansSC-Regular.ttf');
 			if (fs.existsSync(fontPath)) {
 				doc.registerFont('ChineseFont', fontPath);
-				// .registerFont('wryh', `${process.cwd()}/public/fonts/MicrosoftYaHei.ttf`)
-				// .registerFont('NotoSansSCRegular', `${process.cwd()}/public/fonts/NotoSansSC-Regular.ttf`);
 				doc.font('ChineseFont');
-			} 
+			}
 		} catch (error) {
 			console.warn('字体注册失败:', error);
 		}
 
-		// 添加内容到 PDF
+		// 写 PDF 内容
 		doc.fontSize(18).text('Excel 转 PDF 结果', { align: 'center' });
 		doc.moveDown();
 
 		let yPosition = 100;
 
-		// 遍历所有行
 		jsonData.forEach((row, index) => {
-			// 检查是否需要新页面
 			if (yPosition > 700) {
-				// doc.addPage();
+				doc.addPage();
 				yPosition = 50;
 			}
 
-			// row 是稀疏数组，需转密集数组处理 undefined
-			let rowTextList = Array.from(row).map((cell: CellValue) => {
-				return formatCellValue(cell);
-			});
-			rowTextList = rowTextList.filter(item => item !== '');
-			const rowText = rowTextList.join(' | ').trim(); // 用空格分隔单元格内容
+			const rowText = Array.from(row)
+				.map((c) => formatCellValue(c))
+				.filter(Boolean)
+				.join(' | ')
+				.trim();
 
-			// 第一行作为表头，加粗显示
 			if (index === 0) {
 				doc.fontSize(12).text(rowText, 50, yPosition);
 			} else {
-				doc.fontSize(10).text(rowText, 50);
-				doc.moveDown();
+				doc.fontSize(10).text(rowText, 50, yPosition);
 			}
 
-			// yPosition += 20;
+			yPosition += 20;
 		});
 
+		// 必须 end 才会触发流式输出
 		doc.end();
-		const pdfBuffer = await pdfPromise;
-		return new NextResponse(pdfBuffer, {
+
+		// 等待写入完成
+		await new Promise<void>((resolve) => writeStream.on('finish', () => resolve()));
+
+		const stat = fs.statSync(temp);
+		const totalSize = stat.size;
+
+		// next.js 不接受 node的 Readable流，需转换为web stream
+		const readStream = fs.createReadStream(temp);
+		const webStream = nodeStreamToWeb(readStream);
+
+		return new NextResponse(webStream, {
 			status: 200,
 			headers: {
 				'Content-Type': 'application/pdf',
-				'Content-Disposition': `attachment; filename="${fileName}.pdf"`
-			}
+				'Content-Disposition': `attachment; filename="${fileName}.pdf"`,
+				'Content-Length': String(totalSize),
+			},
 		});
 	} catch (err) {
 		console.error('转换失败:', err);
@@ -110,4 +110,17 @@ function formatCellValue(value: ExcelRow | CellValue): string {
 	if (value === null || value === undefined) return '';
 	if (value instanceof Date) return value.toLocaleDateString();
 	return String(value);
+}
+
+function nodeStreamToWeb(stream: Readable): ReadableStream {
+	return new ReadableStream({
+		start(controller) {
+			stream.on('data', (chunk) => controller.enqueue(chunk));
+			stream.on('end', () => controller.close());
+			stream.on('error', (err) => controller.error(err));
+		},
+		cancel() {
+			stream.destroy();
+		},
+	});
 }
