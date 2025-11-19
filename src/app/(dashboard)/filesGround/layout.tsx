@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '@/styles/home.css';
+import RouteWatcher from '@/components/RouteWatcher';
 import GlobalModal from '@/components/GlobalModal';
 
 const geistSans = Geist({
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 	description: '文件上传、下载及管理',
 };
 
-export default function RootLayout({
+export default function FileGroundRootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
@@ -26,7 +27,10 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				{children} <GlobalModal />
+				{/* 处理全局挂载的组件，如 GlobalModal*/}
+				<RouteWatcher />
+				{children}
+				<GlobalModal />
 			</body>
 		</html>
 	);

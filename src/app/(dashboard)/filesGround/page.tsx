@@ -37,18 +37,20 @@ export default function Page() {
 	const handleTestModal = (
 		props: Readonly<{
 			title?: string;
-			content?: string;
+			content?: React.ReactNode | string;
 		}>
 	) => {
-		openModal(
-			<div className="p-4">
-				<h2 className="text-xl font-bold mb-4">{props.title || '标题'}</h2>
-				<p className="mb-4">{props.content || '正文'}</p>
-				<button onClick={closeModal} className="px-4 py-2 w-full bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">
-					关闭
-				</button>
-			</div>
-		);
+		openModal({
+			content: (
+				<div className="p-4">
+					<h2 className="text-xl font-bold mb-4">{props.title || '标题'}</h2>
+					<p className="mb-4">{props.content || '正文'}</p>
+					<button onClick={closeModal} className="px-4 py-2 w-full bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">
+						关闭
+					</button>
+				</div>
+			),
+		});
 	};
 
 	return (

@@ -1,19 +1,33 @@
 'use client';
 
 import { useState } from 'react';
+import { openModal } from '@/components/GlobalModal';
 
 export default function FileBtn({ onProgress }: { onProgress: (p: number) => void }) {
 	const [file, setFile] = useState<File | null>(null);
+	const [showConvertBtn, setShowConvertBtn] = useState(false);
+
+	const handleTestModal = (content: string) => {
+		openModal({
+			content: content,
+			showTitle: true,
+			showCancel: true,
+		});
+	};
 
 	function getFile(e: React.ChangeEvent<HTMLInputElement>) {
-		if (e.target.files?.[0]) {
-			setFile(e.target.files[0]);
-			console.log('选中的文件：', e.target.files[0]);
-		}
+		const file = e.target.files?.[0];
+
+		if (!file) return handleTestModal('请选择文件');
+		if (file.type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') return handleTestModal('仅支持 Excel 格式的文件');
+
+		setFile(file);
+		console.log('选择文件', file);
+		setShowConvertBtn(true);
 	}
 
 	async function convert() {
-		if (!file) return alert('请先选择文件');
+		if (!file) return handleTestModal('请选择文件');
 
 		const form = new FormData();
 		form.append('file', file);
@@ -97,18 +111,23 @@ export default function FileBtn({ onProgress }: { onProgress: (p: number) => voi
 						type="file"
 						id="excel2pdf"
 						name="excel2pdf"
+						accept=".xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 						className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
 						onChange={getFile}
 					/>
 				</div>
 
-				<button type="button" onClick={convert} className="ml-3 px-4 py-2 bg-green-600 text-white rounded cursor-pointer">
-					转换 PDF
-				</button>
+				{showConvertBtn && (
+					<button type="button" onClick={convert} className="ml-3 px-4 py-2 bg-green-600 text-white rounded cursor-pointer">
+						转换 PDF
+					</button>
+				)}
 
-				<button type="button" onClick={convertStream} className="ml-3 px-4 py-2 bg-green-900 text-white rounded cursor-pointer">
-					转换 PDF Stream
-				</button>
+				{showConvertBtn && (
+					<button type="button" onClick={convertStream} className="ml-3 px-4 py-2 bg-green-900 text-white rounded cursor-pointer">
+						转换 PDF Stream
+					</button>
+				)}
 			</div>
 		</form>
 	);
