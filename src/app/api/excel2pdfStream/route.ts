@@ -1,3 +1,8 @@
+/*
+* 流式传输 Excel 转 PDF
+* 获取文件大小后再进行流传输，直接流传输无法首次获知文件总大小
+* 由于不是直接流传输处理，大文件转换并非最优选择
+*/
 import { NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 import PDFDocument from 'pdfkit';
@@ -88,7 +93,7 @@ export async function POST(req: Request) {
 		const stat = fs.statSync(temp);
 		const totalSize = stat.size;
 
-		// next.js 不接受 node的 Readable流，需转换为web stream
+		// next.js 不接受 node 的 Readable 流，需转换为web stream
 		const readStream = fs.createReadStream(temp);
 		const webStream = nodeStreamToWeb(readStream);
 

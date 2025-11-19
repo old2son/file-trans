@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function Page() {
+export default function FileBtn({ onProgress }: { onProgress: (p: number) => void }) {
 	const [file, setFile] = useState<File | null>(null);
 
 	function getFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -47,9 +47,9 @@ export default function Page() {
 			body: form,
 		});
 
-		const total = Number(res.headers.get("Content-Length"));
-		console.log(total, '总字节数');
+		const total = Number(res.headers.get('Content-Length'));
 		let loaded = 0;
+		onProgress(0);
 
 		const reader = res.body!.getReader();
 
@@ -58,14 +58,13 @@ export default function Page() {
 				function pump() {
 					reader.read().then(({ done, value }) => {
 						if (done) {
+							onProgress(100);
 							controller.close();
 							return;
 						}
 
-						console.log('读取到数据块：', value);
-						console.log('字节已接收', value.length);
-
 						loaded += value.length;
+						onProgress(loaded / total);
 						console.log((loaded / total) * 100 + '%');
 						controller.enqueue(value);
 						pump();
@@ -76,27 +75,8 @@ export default function Page() {
 		});
 
 		const blob = await new Response(stream).blob();
-
-		/* const reader = res.body!.getReader();
-		let received = 0;
-		const chunks = [];
-
-		while (true) {
-			const { done, value } = await reader.read();
-			if (done) break;
-			received += value.length;
-			console.log(received, '字节已接收');
-			chunks.push(value);
-		}
-
-		console.log('最终 PDF 大小:', received, '字节');
-
-		const blob = new Blob(chunks, { type: 'application/pdf' }); */
-
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
-
-		console.log('文件', blob);
 
 		a.href = url;
 		a.download = file.name.replace(/\.(xls|xlsx)$/, '.pdf');
@@ -107,27 +87,29 @@ export default function Page() {
 
 	return (
 		<form onSubmit={(e) => e.preventDefault()}>
-			<div className="relative inline-block">
-				<label htmlFor="excel2pdf" className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
-					选择文件
-				</label>
+			<div className="grid grid-cols-3">
+				<div className="relative inline-block">
+					<label htmlFor="excel2pdf" className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
+						选择文件
+					</label>
 
-				<input
-					type="file"
-					id="excel2pdf"
-					name="excel2pdf"
-					className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-					onChange={getFile}
-				/>
+					<input
+						type="file"
+						id="excel2pdf"
+						name="excel2pdf"
+						className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+						onChange={getFile}
+					/>
+				</div>
+
+				<button type="button" onClick={convert} className="ml-3 px-4 py-2 bg-green-600 text-white rounded cursor-pointer">
+					转换 PDF
+				</button>
+
+				<button type="button" onClick={convertStream} className="ml-3 px-4 py-2 bg-green-900 text-white rounded cursor-pointer">
+					转换 PDF Stream
+				</button>
 			</div>
-
-			<button type="button" onClick={convert} className="ml-3 px-4 py-2 bg-green-600 text-white rounded cursor-pointer">
-				转换 PDF
-			</button>
-
-			<button type="button" onClick={convertStream} className="ml-3 px-4 py-2 bg-green-900 text-white rounded cursor-pointer">
-				转换 PDF Stream
-			</button>
 		</form>
 	);
 }
