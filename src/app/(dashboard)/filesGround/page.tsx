@@ -54,30 +54,7 @@ export default function Page() {
 	};
 
 	return (
-		<div className="">
-			<nav>
-				<ul>
-					<li>
-						<a href="#">菜单项 1</a>
-					</li>
-					<li>
-						<a href="#">菜单项 2</a>
-					</li>
-					<li>
-						<a href="#">菜单项 3</a>
-					</li>
-				</ul>
-			</nav>
-
-			{/* <div className="p-4">
-                <button
-                    onClick={handleTestModal}
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
-                >
-                    打开模态框测试
-                </button>
-            </div> */}
-
+		<div className="mt-15">
 			<ul className="grid grid-cols-1 sm:grid-cols-3">
 				{items.map((item, index) => (
 					<li
@@ -106,10 +83,6 @@ export default function Page() {
 					</li>
 				))}
 			</ul>
-
-			{/* <div className="p-4 bg-gray-100 text-blue-500 sm:text-lg">Hello</div> */}
-
-			{/* <div className="text-base sm:text-lg md:text-xl lg:text-2xl">响应式字体</div> */}
 		</div>
 	);
 }
