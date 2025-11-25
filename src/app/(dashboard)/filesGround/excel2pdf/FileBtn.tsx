@@ -55,6 +55,10 @@ export default function FileBtn({
 			body: form,
 		});
 
+		if (res.status !== 200) { 
+			return handleTestModal('转换失败');
+		}
+
 		blobBody.current = await res.blob();
 		downFile();
 	}
@@ -69,6 +73,10 @@ export default function FileBtn({
 			method: 'POST',
 			body: form,
 		});
+
+		if (res.status !== 200) { 
+			return handleTestModal('转换失败');
+		}
 
 		const total = Number(res.headers.get('Content-Length'));
 		let loaded = 0;

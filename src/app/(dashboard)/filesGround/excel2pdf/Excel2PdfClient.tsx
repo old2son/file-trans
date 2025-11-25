@@ -18,7 +18,7 @@ export default function Excel2PdfClient() {
 	const [progressValue, setProgress] = useState(0);
 
 	return (
-		<div className="mt-20" style={{ color: '#f5f5fa' }}>
+		<div className="mt-20">
 			<h1 className="m-auto text-center text-2xl text-black font-bold">Excel 转 PDF</h1>
 			<p className="text-center text-stone-700">使用 node 获取 Excel 转 PDF</p>
 

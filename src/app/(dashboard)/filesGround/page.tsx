@@ -7,16 +7,22 @@ import { useRouter } from 'next/navigation';
 const items = [
 	{
 		src: '/images/view_001.jpeg',
-		text: 'excel 转 pdf',
+		text: 'EXCEL 转 PDF',
 		url: '/filesGround/excel2pdf',
 	},
 	{
-		src: '/images/testCatbeat.jpg',
-		text: '功能蛆',
+		src: '/images/testCatMoon.jpg',
+		text: 'PDF 转 EXCEL',
+		url: '/filesGround/pdf2excel',
 	},
 	{
-		src: '/images/testCatMoon.jpg',
-		text: '功能蛆',
+		src: '/images/testCatbeat.jpg',
+		text: 'PDF 转 图片',
+		url: '/filesGround/pdf2image',
+	},
+	{
+		src: '/images/batcat.png',
+		text: '待定',
 	},
 ];
 
@@ -54,32 +60,27 @@ export default function Page() {
 	};
 
 	return (
-		<div className="mt-15">
-			<ul className="grid grid-cols-1 sm:grid-cols-3">
+		<div className="pb-15 mt-15">
+			<ul className="grid grid-cols-1 gap-5 px-5 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3">
 				{items.map((item, index) => (
 					<li
 						key={index}
-						className="cursor-pointer"
+						className="border border-solid border-[#d6d6df] rounded cursor-pointer transition-shadow bg-white hover:shadow-lg md:flex md:justify-start md:items-center md:gap-3 md:p-1.5 md:font-bold" 
 						onClick={() => {
 							toFnPage(item?.url);
 						}}
 					>
-						<div className="relative w-16 h-16">
+						<div className="relative h-dvw sm:h-[50vw] md:w-[8vw] md:h-[8vw]">
 							<Image
 								loading="eager"
 								src={item.src}
 								alt={item.text || ''}
 								fill
 								sizes="(max-width: 768px) 50vw, 100vw"
-								className="object-cover"
+								className="object-cover md:rounded"
 							/>
 						</div>
-						{item.text && (
-							<p className="text-xs">
-								{item.text}
-								{index || ''}
-							</p>
-						)}
+						{item.text && <p className="py-2.5 text-xl sm:text-sm text-center text-[#33333b]">{item.text}</p>}
 					</li>
 				))}
 			</ul>

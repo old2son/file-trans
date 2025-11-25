@@ -37,7 +37,8 @@ const nextConfig: NextConfig = {
 	// 跨域访问设置
 	allowedDevOrigins: [...ip],
 	// reactStrictMode: false, // 严格模式下 useEffect 等会执行两次
-	serverExternalPackages: ['pdfkit'] // Node.js 等原生模块保持文件路径结构
+	serverExternalPackages: ['pdfkit'], // Node.js 等原生模块保持文件路径结构
+	output: undefined, //standalone 自定义服务器, export 静态站点导出
 };
 
 export default nextConfig;

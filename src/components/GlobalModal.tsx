@@ -54,7 +54,7 @@ export default function GlobalModal() {
 				{props?.showTitle && <h2 className="mb-4 text-xl font-bold ">{props?.title || '提示'}</h2>}
 				{props?.content || ''}
 				{props?.showCancel && (
-					<button onClick={closeModal} className="px-4 py-2 w-full bg-blue-500 text-white rounded hover:bg-blue-600 cursor-pointer">
+					<button onClick={closeModal} className="w-full px-4 py-2 mt-4 cursor-pointer rounded text-white bg-blue-500 hover:bg-blue-600">
 						{props?.cancelText || '确认'}
 					</button>
 				)}

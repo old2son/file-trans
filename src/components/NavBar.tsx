@@ -8,7 +8,7 @@ export default function NavBar({ logo, menu, mobileMenu }: { logo?: React.ReactN
 	return (
 		<nav className="fixed top-0 z-5 px-4 py-2 w-full shadow bg-white">
 			<div className="max-w-7xl mx-auto flex items-center justify-between">
-				{logo || <div className="text-xl font-bold">LOGO</div>}
+				{logo || <div className="text-xl font-bold"><a href='/'>LOGO</a></div>}
 
 				<div className="hidden md:flex space-x-6">
 					{menu || (

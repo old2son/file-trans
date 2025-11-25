@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>PDF转图片</title>
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script> -->
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background-color: #f9f9f9;
+				padding: 20px;
+				max-width: 950px;
+				margin: auto;
+			}
+			h1 {
+				text-align: center;
+				color: #333;
+			}
+			input[type='file'] {
+				display: block;
+				margin: 20pxauto;
+			}
+			.preview-container {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+				margin-top: 20px;
+			}
+			.preview-containerimg {
+				width: 100%;
+				max-width: 300px;
+				height: auto;
+				border: 1pxsolid#ddd;
+				border-radius: 5px;
+				box-shadow: 02px6pxrgba (0, 0, 0, 0.1);
+			}
+			.loading,
+			.error {
+				text-align: center;
+				margin-top: 10px;
+				font-weight: bold;
+				color: red;
+			}
+			.custom-file-uploadinput[type='file'] {
+				display: none;
+			}
+
+			.custom-file-upload {
+				padding: 10px20px;
+				cursor: pointer;
+				background-color: #007bff;
+				color: white;
+				border-radius: 5px;
+				font-size: 16px;
+				text-align: center;
+				transition: background-color0.3sease;
+				margin: 20pxauto;
+				display: block;
+			}
+
+			.custom-file-upload:hover {
+				background-color: #0056b3;
+			}
+
+			#downloadBtn {
+				background-color: #28a745;
+				color: white;
+				border: none;
+				padding: 10px20px;
+				font-size: 16px;
+				border-radius: 5px;
+				cursor: pointer;
+				transition: background-color0.3sease;
+				display: block;
+				margin: 20pxauto;
+			}
+
+			#downloadBtn:hover {
+				background-color: #218838;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>PDF 转图片工具</h1>
+		<label class="custom-file-upload">
+			<input type="file" id="pdfInput" accept="application/pdf" />
+			选择 PDF 文件
+		</label>
+		<label class="custom-file-upload" id="downloadBtn" style="display: none; cursor: pointer"> 下载全部图片 </label>
+
+		<div class="loading" id="loading" style="display: none">正在转换，请稍候...</div>
+		<div class="error" id="error"></div>
+		<div class="preview-container" id="previewContainer"></div>
+        <script src="https://mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
+		<script type="module">
+			const PDFJS = pdfjsLib;
+
+			async function pdfToImages(pdfFile) {
+				const arrayBuffer = await pdfFile.arrayBuffer();
+				const pdf = await PDFJS.getDocument({ data: arrayBuffer }).promise;
+				const images = [];
+
+				for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+					const page = await pdf.getPage(pageNum);
+					const viewport = page.getViewport({ scale: 2 });
+					const canvas = document.createElement('canvas');
+					const context = canvas.getContext('2d');
+
+					canvas.height = viewport.height;
+					canvas.width = viewport.width;
+
+					await page.render({
+						canvasContext: context,
+						viewport: viewport,
+					}).promise;
+
+					const imageUrl = canvas.toDataURL('image/png');
+					images.push(imageUrl);
+				}
+
+				return images;
+			}
+			const downloadBtn = document.getElementById('downloadBtn');
+
+			// 下载按钮点击事件
+			downloadBtn.addEventListener('click', async () => {
+				if (!imageArray || imageArray.length === 0) {
+					alert('没有可下载的图片');
+					return;
+				}
+
+				const zip = newJSZip();
+				const folder = zip.folder('pdf_images');
+
+				// 提取 base64 数据并加入 zip
+				imageArray.forEach((imgUrl, i) => {
+					const base64Data = imgUrl.replace(/^data:image\/(png|jpeg);base64,/, '');
+					folder.file(`page_${i + 1}.png`, base64Data, { base64: true });
+				});
+
+				// 生成压缩包并下载
+				const content = await zip.generateAsync({ type: 'blob' });
+				saveAs(content, 'pdf_pages.zip');
+			});
+			let imageArray = [];
+			// 监听文件上传
+			document.getElementById('pdfInput').addEventListener('change', async (e) => {
+				const file = e.target.files[0];
+				if (!file) return;
+
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.mjs';
+
+				const loading = document.getElementById('loading');
+				const error = document.getElementById('error');
+				const previewContainer = document.getElementById('previewContainer');
+
+				loading.style.display = 'block';
+				error.textContent = '';
+				previewContainer.innerHTML = '';
+				downloadBtn.style.display = 'none';
+				imageArray = [];
+				try {
+					imageArray = await pdfToImages(file);
+
+					imageArray.forEach((imgUrl) => {
+						const img = document.createElement('img');
+						img.src = imgUrl;
+						previewContainer.appendChild(img);
+					});
+					downloadBtn.style.display = 'block';
+				} catch (err) {
+					error.textContent = '转换失败: ' + err.message;
+				} finally {
+					loading.style.display = 'none';
+				}
+			});
+		</script>
+	</body>
+</html>
