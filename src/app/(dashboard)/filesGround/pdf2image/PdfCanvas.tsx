@@ -106,7 +106,7 @@ export default function PdfCanvas({ propFile, onPdfCanvas }: { propFile?: File |
 
 	return (
 		<div className="flex justify-center my-5">
-			<canvas ref={canvasRef} className="w-[50vw] h-[75vw] cursor-pointer" onClick={zoomImg} />
+			<canvas ref={canvasRef} className="w-[50vw] h-[75vw] cursor-pointer shadow-md" onClick={zoomImg} />
 		</div>
 	);
 }

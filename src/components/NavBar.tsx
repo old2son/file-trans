@@ -26,7 +26,7 @@ export default function NavBar({ logo, menu, mobileMenu }: { logo?: React.ReactN
 					)}
 				</div>
 
-				<button onClick={() => setOpen(!open)} className="cursor-pointer md:hidden text-gray-700 focus:outline-none">
+				<button onClick={() => setOpen(!open)} className="cursor-pointer  text-gray-700 focus:outline-none">
 					<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2}>
 						<path d="M4 6h16M4 12h16M4 18h16" />
 					</svg>

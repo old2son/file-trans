@@ -34,6 +34,7 @@ export default function FileBtn({
 		setShowConvertBtn(true);
 		setReadyToDownload(false);
 		onProgress(0);
+		e.target.value = ''; // 同一文件不触发，需要重置
 	}
 
 	const clearFile = () => {

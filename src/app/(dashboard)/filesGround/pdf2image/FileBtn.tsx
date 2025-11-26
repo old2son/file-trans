@@ -6,8 +6,8 @@ import PdfCanvas from './PdfCanvas';
 
 export default function FileBtn({ onFileMsg }: { onFileMsg: (msg: { name: string; size: number; [key: string]: unknown } | null) => void }) {
 	const [file, setFile] = useState<File | null>(null);
-	const [showConvertBtn, setShowConvertBtn] = useState(false);
 	const [pdfCanvas, getPdfCanvas] = useState<HTMLCanvasElement | null>(null);
+	const [ready, setReady] = useState(false);
 
 	const handleTestModal = (content: string) => {
 		openModal({
@@ -25,13 +25,14 @@ export default function FileBtn({ onFileMsg }: { onFileMsg: (msg: { name: string
 
 		setFile(fileTg);
 		onFileMsg({ name: fileTg.name, size: fileTg.size });
-		setShowConvertBtn(true);
+		setReady(true);
+		e.target.value = ''; // 同一文件不触发，需要重置
 	}
 
 	const clearFile = () => {
+		setReady(false);
 		setFile(null);
 		onFileMsg(null);
-		setShowConvertBtn(false);
 	};
 
 	function downloadImage() {
@@ -75,13 +76,13 @@ export default function FileBtn({ onFileMsg }: { onFileMsg: (msg: { name: string
 			<PdfCanvas onPdfCanvas={getPdfCanvas} propFile={file} />
 
 			<div className="grid grid-cols-2 gap-3 mt-2 px-2.5">
-				{pdfCanvas && (
+				{ready && pdfCanvas && (
 					<button type="button" onClick={downloadImage} className="px-4 py-2 bg-red-900 text-white rounded cursor-pointer">
 						下载图片
 					</button>
 				)}
 
-				{pdfCanvas && showConvertBtn && (
+				{ready && pdfCanvas && (
 					<button type="button" onClick={clearFile} className="px-4 py-2 bg-red-900 text-white rounded cursor-pointer">
 						清除文件
 					</button>

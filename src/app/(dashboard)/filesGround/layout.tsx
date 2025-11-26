@@ -18,8 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: '文件处理区',
+	title: process.env.PUBLIC_TITLE,
 	description: '文件上传、下载及管理',
+	keywords: ['文件处理', '上传', '下载', '管理', 'Files Ground'],
 };
 
 export default function FileGroundRootLayout({
