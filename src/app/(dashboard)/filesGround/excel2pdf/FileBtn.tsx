@@ -45,6 +45,7 @@ export default function FileBtn({
 		onProgress(0);
 	};
 
+	// todo: 优化转换功能的准确性，如样式、单元格合并等 
 	async function convert() {
 		if (!file) return handleTestModal('请选择文件');
 
