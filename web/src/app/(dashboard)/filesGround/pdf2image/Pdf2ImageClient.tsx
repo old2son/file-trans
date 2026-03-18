@@ -16,7 +16,7 @@ export default function Pdf2ImageClient() {
 	});
 
 	return (
-		<div className="mt-20">
+		<div className="mt-20 mb-20">
 			<h1 className="m-auto text-center text-2xl text-black font-bold">PDF 转 图片</h1>
 			<p className="text-center text-stone-700">使用 PDFJS 获取 PDF 转 图片</p>
 

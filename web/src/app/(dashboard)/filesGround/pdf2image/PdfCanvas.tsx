@@ -14,6 +14,7 @@ interface PDFPageProxy {
 
 interface PDFDocumentProxy {
 	getPage: (pageNumber: number) => Promise<PDFPageProxy>;
+	numPages: number;
 }
 
 interface PDFJS {
@@ -26,9 +27,17 @@ declare global {
 		pdfjsLib?: PDFJS;
 	}
 }
-export default function PdfCanvas({ propFile, onPdfCanvas }: { propFile?: File | null; onPdfCanvas: (str: HTMLCanvasElement | null) => void }) {
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	// const [isZoomed, setIsZoomed] = useState(false);
+export default function PdfCanvas({
+	propFile,
+	onPdfCanvas,
+	onAllCanvases
+}: {
+	propFile?: File | null;
+	onPdfCanvas: (str: HTMLCanvasElement | null) => void;
+	onAllCanvases?: (canvases: HTMLCanvasElement[]) => void;
+}) {
+	const canvasContainerRef = useRef<HTMLDivElement>(null);
+	const [canvasElements, setCanvasElements] = useState<HTMLCanvasElement[]>([]);
 
 	const fileToBase64 = (file: File): Promise<string> => {
 		return new Promise((resolve, reject) => {
@@ -39,47 +48,78 @@ export default function PdfCanvas({ propFile, onPdfCanvas }: { propFile?: File |
 		});
 	};
 
-	const zoomImg = () => {
-		const canvas = canvasRef.current;
+	const zoomImg = (canvas: HTMLCanvasElement) => {
 		if (!canvas) return;
 
 		const dataUrl = canvas.toDataURL('image/png');
 
 		const imgWindow = window.open('');
 		if (imgWindow) {
-			imgWindow.document.write(`<img src="${dataUrl}" style="width:100%"/>`);
+			const img = imgWindow.document.createElement('img');
+			img.src = dataUrl;
+			img.style.width = '100%';
+			imgWindow.document.body.appendChild(img);
 		}
 	};
 
 	useEffect(() => {
 		if (!propFile) {
-			onPdfCanvas(null); // 手动清除 canvas
+			// 微任务
+			queueMicrotask(() => {
+				setCanvasElements([]);
+				onPdfCanvas(null);
+				onAllCanvases?.([]);
+			});
 			return;
-		};
+		}
 
 		async function loadPDF(PDFJS: PDFJS) {
-			if (!propFile) return;
+			if (!propFile || !canvasContainerRef.current) return;
 
+			console.log(propFile);
 			const base64 = await fileToBase64(propFile);
 
 			const pdf = await PDFJS.getDocument(base64).promise;
-			const page = await pdf.getPage(1);
+			const numPages = pdf.numPages;
+			const canvases: HTMLCanvasElement[] = [];
 
-			const viewport = page.getViewport({ scale: 1.5 });
+			// 清空容器
+			canvasContainerRef.current.innerHTML = '';
 
-			const canvas = canvasRef.current!;
-			const context = canvas.getContext('2d')!;
+			// 渲染每一页
+			for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+				const page = await pdf.getPage(pageNum);
+				const viewport = page.getViewport({ scale: 1.5 });
 
-			canvas.width = viewport.width;
-			canvas.height = viewport.height;
+				// 创建新的 canvas 元素
+				const canvas = document.createElement('canvas');
+				canvas.className = 'w-[50vw] h-[75vw] cursor-pointer shadow-md my-2';
+				canvas.width = viewport.width;
+				canvas.height = viewport.height;
 
-			await page.render({
-				canvasContext: context,
-				viewport,
-			}).promise;
+				// 添加点击事件
+				canvas.addEventListener('click', () => zoomImg(canvas));
 
-			onPdfCanvas(canvasRef.current);
-			console.log('PDF 渲染成功');
+				// 添加到容器
+				canvasContainerRef.current.appendChild(canvas);
+
+				// 渲染页面
+				const context = canvas.getContext('2d')!;
+				await page.render({
+					canvasContext: context,
+					viewport
+				}).promise;
+
+				canvases.push(canvas);
+			}
+
+			// 使用 Promise.resolve 避免同步调用 setState 导致的级联渲染
+			Promise.resolve().then(() => {
+				setCanvasElements(canvases);
+				onPdfCanvas(canvases[0] || null); // 只传递第一个 canvas 给父组件
+				onAllCanvases?.(canvases); // 传递所有 canvas 给父组件
+				console.log('PDF 渲染成功，共', numPages, '页');
+			});
 		}
 
 		// ⭐ 动态加载 public/pdfjs/pdf.js，不走 import
@@ -100,13 +140,13 @@ export default function PdfCanvas({ propFile, onPdfCanvas }: { propFile?: File |
 		return () => {
 			document.body.removeChild(script);
 		};
-	}, [propFile, onPdfCanvas]);
+	}, [propFile, onPdfCanvas, onAllCanvases]);
 
 	if (!propFile) return;
 
 	return (
-		<div className="flex justify-center my-5">
-			<canvas ref={canvasRef} className="w-[50vw] h-[75vw] cursor-pointer shadow-md" onClick={zoomImg} />
+		<div className="flex flex-col items-center my-5" ref={canvasContainerRef}>
+			{/*  canvases will be dynamically added here  */}
 		</div>
 	);
 }
