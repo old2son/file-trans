@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 	subsets: ['latin'],
 });
 
+
 export const metadata: Metadata = {
 	title: process.env.PUBLIC_TITLE,
 	description: '文件上传、下载及管理',
