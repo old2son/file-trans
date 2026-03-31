@@ -40,7 +40,7 @@ def get_connection():
     )
 
 
-@app.get("/visit")
+@app.get("visit")
 def add_visit_record():
     conn = get_connection()
     try:
