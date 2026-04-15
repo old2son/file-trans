@@ -2,13 +2,25 @@
 
 import { useState } from 'react';
 
-export default function NavBar({ logo, menu, mobileMenu }: { logo?: React.ReactNode; menu?: React.ReactNode; mobileMenu?: React.ReactNode }) {
+export default function NavBar({
+	logo,
+	menu,
+	mobileMenu
+}: {
+	logo?: React.ReactNode;
+	menu?: React.ReactNode;
+	mobileMenu?: React.ReactNode;
+}) {
 	const [open, setOpen] = useState(false);
 
 	return (
 		<nav className="fixed top-0 z-5 px-4 py-2 w-full shadow bg-white">
 			<div className="max-w-7xl mx-auto flex items-center justify-between">
-				{logo || <div className="text-xl font-bold"><a href='/'>LOGO</a></div>}
+				{logo || (
+					<div className="text-xl font-bold">
+						<a href="/">LOGO</a>
+					</div>
+				)}
 
 				<div className="hidden md:flex space-x-6">
 					{menu || (
@@ -26,8 +38,17 @@ export default function NavBar({ logo, menu, mobileMenu }: { logo?: React.ReactN
 					)}
 				</div>
 
-				<button onClick={() => setOpen(!open)} className="cursor-pointer  text-gray-700 focus:outline-none">
-					<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2}>
+				<button
+					className="md:hidden cursor-pointer text-gray-700 focus:outline-none"
+					onClick={() => setOpen(!open)}
+				>
+					<svg
+						className="w-5 h-5 block"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth={2}
+						viewBox="0 0 24 24"
+					>
 						<path d="M4 6h16M4 12h16M4 18h16" />
 					</svg>
 				</button>
