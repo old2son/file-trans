@@ -26,7 +26,7 @@ const items = [
 		url: '/filesGround/slimVideo'
 	},
 	{
-		src: '/images/batCat.png',
+		src: '/images/catBat.png',
 		text: '待定'
 	}
 ];
