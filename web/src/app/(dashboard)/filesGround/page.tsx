@@ -11,17 +11,22 @@ const items = [
 		url: '/filesGround/excel2pdf'
 	},
 	{
-		src: '/images/testCatMoon.jpg',
+		src: '/images/catMoon.jpg',
 		text: 'PDF 转 EXCEL',
 		url: '/filesGround/pdf2excel'
 	},
 	{
-		src: '/images/testCatbeat.jpg',
+		src: '/images/catBeat.jpg',
 		text: 'PDF 转 图片',
 		url: '/filesGround/pdf2image'
 	},
 	{
-		src: '/images/batcat.png',
+		src: '/images/catGirl.jpg',
+		text: '视频压缩',
+		url: '/filesGround/slimVideo'
+	},
+	{
+		src: '/images/batCat.png',
 		text: '待定'
 	}
 ];
