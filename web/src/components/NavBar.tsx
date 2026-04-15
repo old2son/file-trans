@@ -15,7 +15,7 @@ export default function NavBar({
 
 	return (
 		<nav className="fixed top-0 z-5 px-4 py-2 w-full shadow bg-white">
-			<div className="max-w-7xl mx-auto flex items-center justify-between">
+			<div className="mx-auto flex items-center justify-between">
 				{logo || (
 					<div className="text-xl font-bold">
 						<a href="/">LOGO</a>
