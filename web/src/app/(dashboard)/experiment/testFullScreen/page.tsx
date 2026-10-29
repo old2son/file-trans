@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Maximize2, ZoomIn, Heart, Share2 } from 'lucide-react';
+import { useState, type MouseEvent } from 'react';
+import { X, Heart, Share2 } from 'lucide-react';
 
 /**
  * 核心逻辑说明：
@@ -10,7 +10,14 @@ import { X, Maximize2, ZoomIn, Heart, Share2 } from 'lucide-react';
  * 3. 通过 CSS Transition 将其 transform 属性过渡到屏幕中心并缩放至全屏。
  */
 
-const ITEMS = [
+type GalleryItem = {
+	id: number;
+	url: string;
+	title: string;
+	tag: string;
+};
+
+const ITEMS: GalleryItem[] = [
 	{
 		id: 1,
 		url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
@@ -50,11 +57,11 @@ const ITEMS = [
 ];
 
 export default function App() {
-	const [selectedItem, setSelectedItem] = useState(null);
-	const [initialRect, setInitialRect] = useState(null);
+	const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+	const [initialRect, setInitialRect] = useState<DOMRect | null>(null);
 	const [isExpanding, setIsExpanding] = useState(false);
 
-	const handleItemClick = (e, item) => {
+	const handleItemClick = (e: MouseEvent<HTMLDivElement>, item: GalleryItem) => {
 		const rect = e.currentTarget.getBoundingClientRect();
 		setInitialRect(rect);
 		setSelectedItem(item);
