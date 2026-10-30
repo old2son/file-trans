@@ -52,7 +52,7 @@ export default function FileBtn({
 		const form = new FormData();
 		form.append('file', file);
 
-		const res = await fetch('/api/excel2pdf', {
+		const res = await fetch('/file-api/excel2pdf', {
 			method: 'POST',
 			body: form,
 		});
@@ -71,7 +71,7 @@ export default function FileBtn({
 		const form = new FormData();
 		form.append('file', file);
 
-		const res = await fetch('/api/excel2pdfStream', {
+		const res = await fetch('/file-api/excel2pdfStream', {
 			method: 'POST',
 			body: form,
 		});

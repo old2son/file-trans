@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { Readable, Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { NextResponse } from 'next/server';
 import {
@@ -261,7 +262,6 @@ async function freeBytes(): Promise<number | null> {
 }
 
 async function pipelineToFile(body: ReadableStream<Uint8Array>, target: string): Promise<void> {
-	const { pipeline } = await import('node:stream/promises');
 	let received = 0;
 	// 没有 Content-Length（chunked）时也要卡住上限，避免把磁盘写满
 	const limiter = new Transform({

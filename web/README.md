@@ -21,9 +21,9 @@ todo
 
 接口：
 
-- `POST /api/slimVideo?name=xxx.mp4&quality=balanced&height=1080`，body 直接是视频二进制（不是 formData，避免大文件被读进内存）
-- `GET /api/slimVideo` 列出保留期内仍在磁盘上的结果（页面刷新后靠它恢复列表）
-- `GET /api/slimVideo/:id` 下载压缩结果，产物在系统临时目录保留 1 小时
+- `POST /file-api/slimVideo?name=xxx.mp4&quality=balanced&height=1080`，body 直接是视频二进制（不是 formData，避免大文件被读进内存）
+- `GET /file-api/slimVideo` 列出保留期内仍在磁盘上的结果（页面刷新后靠它恢复列表）
+- `GET /file-api/slimVideo/:id` 下载压缩结果，产物在系统临时目录保留 1 小时
 
 参数：`quality` 取 `high`（CRF 20）/ `balanced`（CRF 26）/ `small`（CRF 30）；`height` 为短边上限（1080 = 1080p），`0` 表示保持原分辨率，小于上限的视频不会被放大。
 

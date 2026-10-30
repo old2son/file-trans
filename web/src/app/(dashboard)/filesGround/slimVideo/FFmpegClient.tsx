@@ -99,7 +99,7 @@ export default function FFmpegClient() {
 	const loadRecents = useCallback(async () => {
 		setLoadingRecents(true);
 		try {
-			const response = await fetch('/api/slimVideo', { cache: 'no-store' });
+			const response = await fetch('/file-api/slimVideo', { cache: 'no-store' });
 			if (!response.ok) return;
 			const data = (await response.json()) as { items?: RecentItem[] };
 			setRecents(Array.isArray(data.items) ? data.items : []);
@@ -165,7 +165,7 @@ export default function FFmpegClient() {
 
 		try {
 			const query = new URLSearchParams({ name: file.name, quality, height: String(maxHeight) });
-			const response = await fetch(`/api/slimVideo?${query.toString()}`, {
+			const response = await fetch(`/file-api/slimVideo?${query.toString()}`, {
 				method: 'POST',
 				body: file,
 				signal: controller.signal,
@@ -354,7 +354,7 @@ export default function FFmpegClient() {
 							{saved !== null ? `（省 ${saved}%）` : ''}
 						</p>
 						<a
-							href={`/api/slimVideo/${result.id}`}
+							href={`/file-api/slimVideo/${result.id}`}
 							download={result.name}
 							className="mt-2 inline-block rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
 						>
@@ -430,7 +430,7 @@ export default function FFmpegClient() {
 										</p>
 									</div>
 									<a
-										href={`/api/slimVideo/${item.id}`}
+										href={`/file-api/slimVideo/${item.id}`}
 										download={item.name}
 										className="shrink-0 rounded border border-blue-200 px-3 py-1 text-xs text-blue-600 hover:bg-blue-50"
 									>
