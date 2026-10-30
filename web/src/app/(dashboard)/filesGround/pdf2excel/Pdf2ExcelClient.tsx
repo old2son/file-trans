@@ -15,33 +15,43 @@ export default function Pdf2ExcelClient() {
 		const name = file.name.split('.')[0];
 
 		try {
-			// 注意这里是 POST 请求，发送的是 formData
-			const response = await fetch('http://192.168.0.35:4000/api/PDF2Excel', {
+			// 同源代理：由 Next 服务端转发到 Python 转换服务，避免跨域和地址配错
+			const response = await fetch('/file-api/pdf2excel', {
 				method: 'POST',
 				body: formData
 			});
 
-			if (!response.ok) throw new Error('转换失败');
+			if (!response.ok) {
+				const detail = (await response.json().catch(() => null)) as { detail?: string } | null;
+				throw new Error(detail?.detail ?? `转换失败（HTTP ${response.status}）`);
+			}
+
+			// 后端在“没检测到表格”时会返回 200 + JSON，不能当 xlsx 下载
+			const contentType = response.headers.get('content-type') ?? '';
+			if (contentType.includes('application/json')) {
+				const data = (await response.json().catch(() => null)) as { message?: string; status?: string } | null;
+				throw new Error(data?.message ?? 'PDF 中没有检测到表格');
+			}
 
 			// 1. 将响应转为 Blob (二进制大对象)
 			const blob = await response.blob();
 
-			// 2. 创建临时下载链接
+			// 2. 创建临时下载链接并真正触发下载
 			const url = window.URL.createObjectURL(blob);
-		
-				const a = document.createElement('a');
-		
+			const a = document.createElement('a');
+
 			a.href = url;
-			a.download = `${name}.xlsx`; // 设置下载的文件名
-		/* 	document.body.appendChild(a);
+			a.download = `${name}.xlsx`;
+			document.body.appendChild(a);
 			a.click();
+			a.remove();
 
 			// 3. 释放内存
-			window.URL.revokeObjectURL(url); */
+			window.URL.revokeObjectURL(url);
 			alert('转换成功，文件已下载！');
 		} catch (error) {
 			console.error(error);
-			alert('请求出错，请检查后端服务');
+			alert(error instanceof Error ? error.message : '请求出错，请检查后端服务');
 		} finally {
 			setUploading(false);
 		}

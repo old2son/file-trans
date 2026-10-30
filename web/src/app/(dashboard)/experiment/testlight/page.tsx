@@ -16,12 +16,9 @@ const App = () => {
 	const [animatingTheme, setAnimatingTheme] = useState(isDark);
 
 	const initColor = () => {
+		// 只认用户手动切换过的偏好，不跟随系统深浅色
 		const saved = localStorage.getItem('app-theme-dark');
-		if (saved !== null) {
-			setIsDark(saved === 'true');
-		} else {
-			setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
-		}
+		setIsDark(saved === 'true');
 		setIsRender(true);
 	};
 

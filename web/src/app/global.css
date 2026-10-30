@@ -1,8 +1,17 @@
 @import 'tailwindcss';
 
+/*
+ * 关闭“跟随系统深浅色”的行为。
+ * dark: 变体只在显式带 .dark 类的容器内生效（目前只有 /experiment/testlight 自己用），
+ * 不再由 prefers-color-scheme 自动触发，避免深色系统下文字变浅、和写死的白底打架。
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
 	--background: #ffffff;
 	--foreground: #171717;
+	/* 让滚动条、输入框等原生控件也保持浅色 */
+	color-scheme: light;
 }
 
 @theme inline {
@@ -10,13 +19,6 @@
 	--color-foreground: var(--foreground);
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
 }
 
 body {
